@@ -1,0 +1,13 @@
+services:
+  db:
+    container_name: laravel_mysql
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_USER: dbadmin
+      MYSQL_PASSWORD: dbpass 
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+    volumes:
+      - ./data:/var/lib/mysql
