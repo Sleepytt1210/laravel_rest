@@ -94,7 +94,7 @@ Laravel uses the Model-View-Controller (MVC) architecture pattern to manage data
   }
   ```
 
-  ### SQL Querying
+  ### SQL Query
 
   Using the `Illuminate\Support\Facades\DB` library, we can perform SQL queries by passing statements to the provided functions.
 
@@ -141,6 +141,74 @@ Laravel uses the Model-View-Controller (MVC) architecture pattern to manage data
 
   This omits the need to write the SQL statement every time.
 
-  To learn more about SQL querying in Laravel, refer to [Database: Migrations - Laravel 10.x - The PHP Framework For Web Artisans](https://laravel.com/docs/10.x/migrations).
+  To learn more about SQL querying in Laravel, refer to [Database: Query Builder - Laravel 10.x - The PHP Framework For Web Artisans](https://laravel.com/docs/10.x/queries)
 
+  ### Eloquent ORM
 
+  Laravel also includes Eloquent, which is an object-relational mapper (ORM). For example, the User class that extends the Model class inherited SQL functions. 
+
+  ```php
+  $users = User::create([
+      "name" => 'Yu Cheng',
+      "email"=> 'ycjoker@gmail.com',
+      "password"=> '1D0Nt@know!',
+  ]);
+  
+  # To update a user, the user object must be retrieved first
+  $user = User::where('email', 'ycjoker@gmail.com')->first();
+  $user.update([
+      'email' => 'jokeryc@gmail.com',
+  ]);
+  
+  # Update using save
+  $user = User::where('email', 'ycjoker@gmail.com')->first();
+  $user->'email' = 'jokeryc@gmail.com';
+  $user->save();
+  
+  # Same goes for delete
+  $user = User::find(2);
+  $user.delete()
+  ```
+
+  The created user will be returned in the `attributes` and `original` field of `$users`.
+
+  By using ORM, we can have more flexible control over the table and models. For instance, we can specify to generate UUID for the id field, specify other primary keys and manage timestamp...
+
+  #### Mutator/Cast
+
+  Eloquent allows mutating a value before committing changes to the database or after retrieving from the database. This is extremely useful when we want to perform actions like type casting, password hashing, or any form of manipulation.
+
+  This can be done by creating a protected class method with the same name as the target column. 
+
+  ```php
+  use Illuminate\Database\Eloquent\Casts\Attribute;
+  
+  protected function name(): Attribute
+  {
+      return Attribute::make(
+      	get: fn (string $value) => ucfirst($value),
+          set: fn (string $value) => strtolower($value)
+      );
+  }
+  
+  protected function password(): Attribute
+      {
+          return Attribute::make(
+              set: fn (string $value) => bcrypt($value)
+          );
+      }
+  ```
+
+  By creating the following user,
+
+  ```php
+  $user = User::create([
+      "name" => "yu Cheng",
+      "email" => "ycjoker@gmail.com",
+      "password" => '!D0ntKn0w',
+  ]);
+  ```
+
+  ![mutator-result](doc-img/mutator.png)
+
+  We got the above result. Notice that the name is lower cased where the password is encrypted.
