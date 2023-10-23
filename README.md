@@ -211,4 +211,38 @@ Laravel uses the Model-View-Controller (MVC) architecture pattern to manage data
 
   ![mutator-result](doc-img/mutator.png)
 
-  We got the above result. Notice that the name is lower cased where the password is encrypted.
+  We got the above result. Notice that the name is lowercase where the password is encrypted.
+  
+  #### Mass Assignment & CSRF
+  
+  A mass assignment attack occurs when an attacker can guess the pattern of the post request. Thereby, they can inject values into an object to the request to perform unauthorised changes to a record in the database.
+  
+  For instance, say a User model below has an `$isAdmin` field. 
+  
+  ```php 
+  class User extends Model {
+      private $name;
+      private $email;
+      private $isAdmin;
+  }
+  ```
+  
+  Although the form does not include an input field for `$isAdmin`, the attacker may figure out the existence of this field and explicitly insert the `isAdmin=true` via request interception.
+  
+  ```http 
+  name=bob&email=bob@gmail.com&isAdmin=true
+  ```
+  
+  This could cause the value of `$isAdmin` field being assigned true during model creation.
+  
+  To prevent this, include either `fillable` or `guarded` to white list or black list the fields respectively. Then, use `create` or `update` to ensure the protection are provided instead of `save`. 
+  
+  To prevent Cross-Site Request Forgery (CSRF) attack, use the `@csrf` decorator which will generate a hidden input to generate a *csrf token* to validate the form submission. 
+  
+  ```php+HTML
+  <form>
+      @csrf
+  </form>
+  ```
+  
+  
